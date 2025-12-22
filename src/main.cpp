@@ -3,23 +3,18 @@
 #include "interpreter.h"
 
 int main() {
+    std::string code =
+        "a = 20;"
+        "b = 5;"
+        "if { a > b } { c = a; } else { c = b; }";
+
+    Lexer lexer(code);
+    Parser parser(lexer);
+
+    auto program = parser.parseProgram();
+
     Interpreter interpreter;
-
-    {
-        std::string code = "a = 20;";
-        Lexer lexer(code);
-        Parser parser(lexer);
-        auto ast = parser.parseStatement();
-        interpreter.execute(*ast);
-    }
-
-    {
-        std::string code = "if { a > 10 } { b = 1; } else { b = 0; }";
-        Lexer lexer(code);
-        Parser parser(lexer);
-        auto ast = parser.parseStatement();
-        interpreter.execute(*ast);
-    }
+    interpreter.execute(*program);
 
     return 0;
 }

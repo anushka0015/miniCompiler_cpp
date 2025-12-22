@@ -7,9 +7,9 @@ Parser::Parser(Lexer& lexer) : lexer(lexer) {
 }
 
 void Parser::eat(TokenType type) {
-    if (currentToken.type == type) {
+    if (currentToken.type == type)
         currentToken = lexer.getNextToken();
-    } else {
+    else {
         std::cerr << "Syntax Error\n";
         exit(1);
     }
@@ -56,7 +56,6 @@ std::unique_ptr<Expr> Parser::parseCondition() {
         std::string op = currentToken.value;
         eat(currentToken.type);
         auto right = parseTerm();
-
         return std::make_unique<BinaryExpr>(op, std::move(left), std::move(right));
     }
 
@@ -70,7 +69,6 @@ std::unique_ptr<ASTNode> Parser::parseAssignment() {
     eat(TokenType::ASSIGN);
     auto expr = parseExpression();
     eat(TokenType::SEMICOLON);
-
     return std::make_unique<Assignment>(var, std::move(expr));
 }
 
@@ -81,12 +79,12 @@ std::unique_ptr<ASTNode> Parser::parseIfStatement() {
     eat(TokenType::RBRACE);
 
     eat(TokenType::LBRACE);
-    auto thenStmt = parseAssignment();
+    auto thenStmt = parseStatement();
     eat(TokenType::RBRACE);
 
     eat(TokenType::KEYWORD_ELSE);
     eat(TokenType::LBRACE);
-    auto elseStmt = parseAssignment();
+    auto elseStmt = parseStatement();
     eat(TokenType::RBRACE);
 
     return std::make_unique<IfStatement>(
@@ -101,4 +99,15 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
         return parseIfStatement();
 
     return parseAssignment();
+}
+
+// ---------- Program ----------
+std::unique_ptr<Program> Parser::parseProgram() {
+    auto program = std::make_unique<Program>();
+
+    while (currentToken.type != TokenType::END) {
+        program->statements.push_back(parseStatement());
+    }
+
+    return program;
 }

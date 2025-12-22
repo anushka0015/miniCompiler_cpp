@@ -2,13 +2,11 @@
 #include <iostream>
 
 int Interpreter::evalExpr(const Expr* expr) {
-    if (auto num = dynamic_cast<const NumberExpr*>(expr)) {
+    if (auto num = dynamic_cast<const NumberExpr*>(expr))
         return num->value;
-    }
 
-    if (auto var = dynamic_cast<const VariableExpr*>(expr)) {
+    if (auto var = dynamic_cast<const VariableExpr*>(expr))
         return variables[var->name];
-    }
 
     if (auto bin = dynamic_cast<const BinaryExpr*>(expr)) {
         int left = evalExpr(bin->left.get());
@@ -43,10 +41,14 @@ void Interpreter::execute(const ASTNode& node) {
     }
 
     else if (auto ifStmt = dynamic_cast<const IfStatement*>(&node)) {
-        if (evalCondition(ifStmt->condition.get())) {
+        if (evalCondition(ifStmt->condition.get()))
             execute(*ifStmt->thenBranch);
-        } else {
+        else
             execute(*ifStmt->elseBranch);
-        }
+    }
+
+    else if (auto program = dynamic_cast<const Program*>(&node)) {
+        for (const auto& stmt : program->statements)
+            execute(*stmt);
     }
 }

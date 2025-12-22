@@ -3,6 +3,7 @@
 
 #include <string>
 #include <memory>
+#include <vector>
 
 // ---------- Base Node ----------
 struct ASTNode {
@@ -54,6 +55,11 @@ struct IfStatement : ASTNode {
         : condition(std::move(condition)),
           thenBranch(std::move(thenBranch)),
           elseBranch(std::move(elseBranch)) {}
+};
+
+// ---------- Program ----------
+struct Program : ASTNode {
+    std::vector<std::unique_ptr<ASTNode>> statements;
 };
 
 #endif

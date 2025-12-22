@@ -7,8 +7,7 @@
 class Parser {
 public:
     Parser(Lexer& lexer);
-
-    std::unique_ptr<ASTNode> parseStatement();
+    std::unique_ptr<Program> parseProgram();
 
 private:
     Lexer& lexer;
@@ -20,6 +19,7 @@ private:
     std::unique_ptr<Expr> parseTerm();
     std::unique_ptr<Expr> parseCondition();
 
+    std::unique_ptr<ASTNode> parseStatement();
     std::unique_ptr<ASTNode> parseAssignment();
     std::unique_ptr<ASTNode> parseIfStatement();
 };
