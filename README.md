@@ -1,12 +1,17 @@
 # Mini Compiler in C++
 
-This is a mini compiler project built in C++ as part of an academic project.
+This project implements a **mini compiler** using C++ that demonstrates the core phases of a compiler, from lexical analysis to execution.
 
-## Objectives
-- Lexical Analysis
-- Syntax Analysis
-- Intermediate Code Generation
+---
 
-## Tools Used
-- C++
-- Git & GitHub
+## 🔧 Features
+- Lexical Analysis (Tokenization)
+- Syntax Analysis (Recursive Descent Parser)
+- Abstract Syntax Tree (AST) construction
+- Three-Address Code (Intermediate Code) generation
+- Interpreter to execute the code
+
+---
+
+## 🧠 Compiler Pipeline
+
