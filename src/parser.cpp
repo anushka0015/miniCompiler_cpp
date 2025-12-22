@@ -1,6 +1,6 @@
 #include "parser.h"
-#include <cstdlib>
 #include <iostream>
+#include <cstdlib>
 
 Parser::Parser(Lexer& lexer) : lexer(lexer) {
     currentToken = lexer.getNextToken();
@@ -15,6 +15,7 @@ void Parser::eat(TokenType type) {
     }
 }
 
+// ---------- Expressions ----------
 std::unique_ptr<Expr> Parser::parseTerm() {
     if (currentToken.type == TokenType::NUMBER) {
         int value = std::stoi(currentToken.value);
@@ -45,7 +46,25 @@ std::unique_ptr<Expr> Parser::parseExpression() {
     return left;
 }
 
-std::unique_ptr<Assignment> Parser::parseStatement() {
+std::unique_ptr<Expr> Parser::parseCondition() {
+    auto left = parseTerm();
+
+    if (currentToken.type == TokenType::GREATER ||
+        currentToken.type == TokenType::LESS ||
+        currentToken.type == TokenType::EQUAL_EQUAL) {
+
+        std::string op = currentToken.value;
+        eat(currentToken.type);
+        auto right = parseTerm();
+
+        return std::make_unique<BinaryExpr>(op, std::move(left), std::move(right));
+    }
+
+    return left;
+}
+
+// ---------- Statements ----------
+std::unique_ptr<ASTNode> Parser::parseAssignment() {
     std::string var = currentToken.value;
     eat(TokenType::IDENTIFIER);
     eat(TokenType::ASSIGN);
@@ -53,4 +72,33 @@ std::unique_ptr<Assignment> Parser::parseStatement() {
     eat(TokenType::SEMICOLON);
 
     return std::make_unique<Assignment>(var, std::move(expr));
+}
+
+std::unique_ptr<ASTNode> Parser::parseIfStatement() {
+    eat(TokenType::KEYWORD_IF);
+    eat(TokenType::LBRACE);
+    auto condition = parseCondition();
+    eat(TokenType::RBRACE);
+
+    eat(TokenType::LBRACE);
+    auto thenStmt = parseAssignment();
+    eat(TokenType::RBRACE);
+
+    eat(TokenType::KEYWORD_ELSE);
+    eat(TokenType::LBRACE);
+    auto elseStmt = parseAssignment();
+    eat(TokenType::RBRACE);
+
+    return std::make_unique<IfStatement>(
+        std::move(condition),
+        std::move(thenStmt),
+        std::move(elseStmt)
+    );
+}
+
+std::unique_ptr<ASTNode> Parser::parseStatement() {
+    if (currentToken.type == TokenType::KEYWORD_IF)
+        return parseIfStatement();
+
+    return parseAssignment();
 }

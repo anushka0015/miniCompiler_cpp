@@ -4,19 +4,28 @@
 Lexer::Lexer(const std::string& input) : input(input), pos(0) {}
 
 Token Lexer::getNextToken() {
+    // Skip whitespace
     while (pos < input.length() && isspace(input[pos]))
         pos++;
 
     if (pos >= input.length())
         return {TokenType::END, ""};
 
+    // ---------- IDENTIFIERS & KEYWORDS ----------
     if (isalpha(input[pos])) {
-        std::string id;
+        std::string word;
         while (pos < input.length() && isalnum(input[pos]))
-            id += input[pos++];
-        return {TokenType::IDENTIFIER, id};
+            word += input[pos++];
+
+        // Keywords
+        if (word == "if")   return {TokenType::KEYWORD_IF, word};
+        if (word == "else") return {TokenType::KEYWORD_ELSE, word};
+
+        // Normal identifier
+        return {TokenType::IDENTIFIER, word};
     }
 
+    // ---------- NUMBERS ----------
     if (isdigit(input[pos])) {
         std::string num;
         while (pos < input.length() && isdigit(input[pos]))
@@ -24,11 +33,33 @@ Token Lexer::getNextToken() {
         return {TokenType::NUMBER, num};
     }
 
+    // ---------- SYMBOLS & OPERATORS ----------
     char ch = input[pos++];
+
+    // ==
+    if (ch == '=' && pos < input.length() && input[pos] == '=') {
+        pos++;
+        return {TokenType::EQUAL_EQUAL, "=="};
+    }
+
+    // =
     if (ch == '=') return {TokenType::ASSIGN, "="};
+
+    // Arithmetic operators
     if (ch == '+' || ch == '-' || ch == '*' || ch == '/')
         return {TokenType::OPERATOR, std::string(1, ch)};
+
+    // Comparison operators
+    if (ch == '>') return {TokenType::GREATER, ">"};
+    if (ch == '<') return {TokenType::LESS, "<"};
+
+    // Braces
+    if (ch == '{') return {TokenType::LBRACE, "{"};
+    if (ch == '}') return {TokenType::RBRACE, "}"};
+
+    // Semicolon
     if (ch == ';') return {TokenType::SEMICOLON, ";"};
 
+    // Unknown character
     return {TokenType::END, ""};
 }

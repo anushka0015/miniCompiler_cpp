@@ -9,7 +9,14 @@ enum class TokenType {
     ASSIGN,
     OPERATOR,
     SEMICOLON,
-    END
+    END,
+    KEYWORD_IF,
+    KEYWORD_ELSE,
+    LBRACE,
+    RBRACE,
+    GREATER,
+    LESS,
+    EQUAL_EQUAL
 };
 
 struct Token {

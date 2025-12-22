@@ -7,12 +7,13 @@
 
 class Interpreter {
 public:
-    void execute(const Assignment& stmt);
+    void execute(const ASTNode& node);
 
 private:
     std::unordered_map<std::string, int> variables;
 
     int evalExpr(const Expr* expr);
+    bool evalCondition(const Expr* expr);
 };
 
 #endif
