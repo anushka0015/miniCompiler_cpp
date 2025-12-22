@@ -1,6 +1,7 @@
 #include <iostream>
 #include "lexer.h"
 #include "parser.h"
+#include "optimizer.h"
 #include "interpreter.h"
 
 int main() {
@@ -10,10 +11,14 @@ int main() {
 
     auto ast = parser.parseStatement();
 
+    Optimizer optimizer;
+    ast->expression = optimizer.fold(std::move(ast->expression));
+
     Interpreter interpreter;
     interpreter.execute(*ast);
 
     return 0;
 }
+
 
 
