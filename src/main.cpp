@@ -4,9 +4,10 @@
 
 int main() {
     std::string code =
-        "a = 20;"
-        "b = 5;"
-        "if { a > b } { c = a; } else { c = b; }";
+        "a = 5;"
+        "while { a > 0 } {"
+        "a = a - 1;"
+        "}";
 
     Lexer lexer(code);
     Parser parser(lexer);

@@ -94,9 +94,28 @@ std::unique_ptr<ASTNode> Parser::parseIfStatement() {
     );
 }
 
+std::unique_ptr<ASTNode> Parser::parseWhileStatement() {
+    eat(TokenType::KEYWORD_WHILE);
+    eat(TokenType::LBRACE);
+    auto condition = parseCondition();
+    eat(TokenType::RBRACE);
+
+    eat(TokenType::LBRACE);
+    auto body = parseStatement();
+    eat(TokenType::RBRACE);
+
+    return std::make_unique<WhileStatement>(
+        std::move(condition),
+        std::move(body)
+    );
+}
+
 std::unique_ptr<ASTNode> Parser::parseStatement() {
     if (currentToken.type == TokenType::KEYWORD_IF)
         return parseIfStatement();
+
+    if (currentToken.type == TokenType::KEYWORD_WHILE)
+        return parseWhileStatement();
 
     return parseAssignment();
 }

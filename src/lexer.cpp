@@ -20,6 +20,7 @@ Token Lexer::getNextToken() {
         // Keywords
         if (word == "if")   return {TokenType::KEYWORD_IF, word};
         if (word == "else") return {TokenType::KEYWORD_ELSE, word};
+        if (word == "while") return {TokenType::KEYWORD_WHILE, word};
 
         // Normal identifier
         return {TokenType::IDENTIFIER, word};

@@ -47,8 +47,15 @@ void Interpreter::execute(const ASTNode& node) {
             execute(*ifStmt->elseBranch);
     }
 
+    else if (auto whileStmt = dynamic_cast<const WhileStatement*>(&node)) {
+        while (evalCondition(whileStmt->condition.get())) {
+            execute(*whileStmt->body);
+        }
+    }
+
     else if (auto program = dynamic_cast<const Program*>(&node)) {
         for (const auto& stmt : program->statements)
             execute(*stmt);
     }
 }
+

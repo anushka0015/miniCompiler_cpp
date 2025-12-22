@@ -12,11 +12,12 @@ enum class TokenType {
     END,
     KEYWORD_IF,
     KEYWORD_ELSE,
+    KEYWORD_WHILE,
     LBRACE,
     RBRACE,
     GREATER,
     LESS,
-    EQUAL_EQUAL
+    EQUAL_EQUAL,
 };
 
 struct Token {

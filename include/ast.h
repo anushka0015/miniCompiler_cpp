@@ -57,6 +57,16 @@ struct IfStatement : ASTNode {
           elseBranch(std::move(elseBranch)) {}
 };
 
+struct WhileStatement : ASTNode {
+    std::unique_ptr<Expr> condition;
+    std::unique_ptr<ASTNode> body;
+
+    WhileStatement(std::unique_ptr<Expr> condition,
+                   std::unique_ptr<ASTNode> body)
+        : condition(std::move(condition)),
+          body(std::move(body)) {}
+};
+
 // ---------- Program ----------
 struct Program : ASTNode {
     std::vector<std::unique_ptr<ASTNode>> statements;
