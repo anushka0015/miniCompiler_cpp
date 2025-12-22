@@ -1,7 +1,7 @@
 #include <iostream>
 #include "lexer.h"
 #include "parser.h"
-#include "tac.h"
+#include "interpreter.h"
 
 int main() {
     std::string code = "a = 10 + 20;";
@@ -10,10 +10,10 @@ int main() {
 
     auto ast = parser.parseStatement();
 
-    TACGenerator tac;
-    tac.generate(*ast);
-    tac.print();
+    Interpreter interpreter;
+    interpreter.execute(*ast);
 
     return 0;
 }
+
 
