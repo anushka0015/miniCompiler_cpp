@@ -3,6 +3,7 @@
 
 #include "ast.h"
 #include <unordered_map>
+#include <unordered_set>
 #include <string>
 
 class Interpreter {
@@ -11,9 +12,12 @@ public:
 
 private:
     std::unordered_map<std::string, int> variables;
+    std::unordered_set<std::string> initialized;
 
     int evalExpr(const Expr* expr);
     bool evalCondition(const Expr* expr);
+
+    void semanticError(const std::string& message);
 };
 
 #endif

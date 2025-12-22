@@ -1,12 +1,22 @@
 #include "interpreter.h"
 #include <iostream>
+#include <cstdlib>
+
+void Interpreter::semanticError(const std::string& message) {
+    std::cerr << "Semantic Error: " << message << std::endl;
+    exit(1);
+}
 
 int Interpreter::evalExpr(const Expr* expr) {
     if (auto num = dynamic_cast<const NumberExpr*>(expr))
         return num->value;
 
-    if (auto var = dynamic_cast<const VariableExpr*>(expr))
+    if (auto var = dynamic_cast<const VariableExpr*>(expr)) {
+        if (initialized.find(var->name) == initialized.end()) {
+            semanticError("Variable '" + var->name + "' used before initialization");
+        }
         return variables[var->name];
+    }
 
     if (auto bin = dynamic_cast<const BinaryExpr*>(expr)) {
         int left = evalExpr(bin->left.get());
@@ -15,7 +25,12 @@ int Interpreter::evalExpr(const Expr* expr) {
         if (bin->op == "+") return left + right;
         if (bin->op == "-") return left - right;
         if (bin->op == "*") return left * right;
-        if (bin->op == "/") return left / right;
+
+        if (bin->op == "/") {
+            if (right == 0)
+                semanticError("Division by zero");
+            return left / right;
+        }
     }
 
     return 0;
@@ -30,6 +45,7 @@ bool Interpreter::evalCondition(const Expr* expr) {
     if (bin->op == "<") return left < right;
     if (bin->op == "==") return left == right;
 
+    semanticError("Invalid condition expression");
     return false;
 }
 
@@ -37,6 +53,7 @@ void Interpreter::execute(const ASTNode& node) {
     if (auto assign = dynamic_cast<const Assignment*>(&node)) {
         int value = evalExpr(assign->expression.get());
         variables[assign->variable] = value;
+        initialized.insert(assign->variable);
         std::cout << assign->variable << " = " << value << std::endl;
     }
 
@@ -58,4 +75,5 @@ void Interpreter::execute(const ASTNode& node) {
             execute(*stmt);
     }
 }
+
 

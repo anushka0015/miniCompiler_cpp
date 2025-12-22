@@ -4,10 +4,9 @@
 
 int main() {
     std::string code =
-        "a = 5;"
-        "while { a > 0 } {"
-        "a = a - 1;"
-        "}";
+    "a = 10;"
+    "b = a / 0;";
+
 
     Lexer lexer(code);
     Parser parser(lexer);
