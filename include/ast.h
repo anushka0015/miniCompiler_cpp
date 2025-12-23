@@ -26,6 +26,12 @@ struct BooleanExpr : Expr {
     BooleanExpr(bool value) : value(value) {}
 };
 
+struct PrintStatement : ASTNode {
+    std::unique_ptr<Expr> expression;
+    PrintStatement(std::unique_ptr<Expr> expression)
+        : expression(std::move(expression)) {}
+};
+
 
 struct VariableExpr : Expr {
     std::string name;

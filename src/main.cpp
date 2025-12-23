@@ -4,10 +4,9 @@
 
 int main() {
   std::string code =
-    "a = 1;"
-    "while { false } {"
-    "a = a + 1;"
-    "}";
+    "a = 10;"
+    "print(a);";
+
 
 
 

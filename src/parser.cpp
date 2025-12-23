@@ -75,6 +75,16 @@ std::unique_ptr<Expr> Parser::parseCondition() {
     return left;
 }
 
+std::unique_ptr<ASTNode> Parser::parsePrintStatement() {
+    eat(TokenType::KEYWORD_PRINT);
+    eat(TokenType::LPAREN);
+    auto expr = parseExpression();
+    eat(TokenType::RPAREN);
+    eat(TokenType::SEMICOLON);
+    return std::make_unique<PrintStatement>(std::move(expr));
+}
+
+
 // ---------- Statements ----------
 std::unique_ptr<ASTNode> Parser::parseAssignment() {
     std::string var = currentToken.value;
@@ -146,6 +156,7 @@ std::unique_ptr<ASTNode> Parser::parseBreakStatement() {
 
 
 std::unique_ptr<ASTNode> Parser::parseStatement() {
+
     if (currentToken.type == TokenType::KEYWORD_IF)
         return parseIfStatement();
 
@@ -155,8 +166,12 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
     if (currentToken.type == TokenType::KEYWORD_BREAK)
         return parseBreakStatement();
 
+    if (currentToken.type == TokenType::KEYWORD_PRINT)
+        return parsePrintStatement();
+
     return parseAssignment();
 }
+
 
 
 // ---------- Program ----------

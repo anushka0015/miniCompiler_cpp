@@ -24,6 +24,8 @@ Token Lexer::getNextToken() {
         if (word == "break") return {TokenType::KEYWORD_BREAK, word};
         if (word == "true")  return {TokenType::KEYWORD_TRUE, word};
         if (word == "false") return {TokenType::KEYWORD_FALSE, word};
+        if (word == "print") return {TokenType::KEYWORD_PRINT, word};
+
 
         // Normal identifier
         return {TokenType::IDENTIFIER, word};
@@ -60,6 +62,10 @@ Token Lexer::getNextToken() {
     // Braces
     if (ch == '{') return {TokenType::LBRACE, "{"};
     if (ch == '}') return {TokenType::RBRACE, "}"};
+
+    if (ch == '(') return {TokenType::LPAREN, "("};
+    if (ch == ')') return {TokenType::RPAREN, ")"};
+
 
     // Semicolon
     if (ch == ';') return {TokenType::SEMICOLON, ";"};

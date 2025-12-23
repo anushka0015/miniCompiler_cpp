@@ -24,6 +24,8 @@ private:
     std::unique_ptr<ASTNode> parseIfStatement();
     std::unique_ptr<ASTNode> parseWhileStatement();
     std::unique_ptr<ASTNode> parseBreakStatement();
+    std::unique_ptr<ASTNode> parsePrintStatement();
+
 
 };
 

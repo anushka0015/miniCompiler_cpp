@@ -127,6 +127,14 @@ void Interpreter::execute(const ASTNode& node) {
         return;
     }
 
+    // ---------- Print ----------
+    if (auto printStmt = dynamic_cast<const PrintStatement*>(&node)) {
+         int value = evalExpr(printStmt->expression.get());
+        std::cout << value << std::endl;
+        return;
+    }
+
+
     // ---------- While (NO new scope) ----------
     if (auto whileStmt = dynamic_cast<const WhileStatement*>(&node)) {
         while (evalCondition(whileStmt->condition.get())) {
