@@ -5,9 +5,11 @@
 int main() {
   std::string code =
     "a = 10;"
+    "print(a);"
+    "if { a > 5 } {"
+    "b = 20;"
+    "}"
     "print(a);";
-
-
 
 
 

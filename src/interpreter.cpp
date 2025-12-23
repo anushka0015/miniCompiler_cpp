@@ -17,11 +17,23 @@ void Interpreter::exitScope() {
     initialized.pop_back();
 }
 
-int Interpreter::evalExpr(const Expr* expr) {
+void Interpreter::printSymbolTable() {
+    std::cout << "\n--- SYMBOL TABLE ---\n";
+    for (size_t i = 0; i < scopes.size(); ++i) {
+        std::cout << "Scope " << i;
+        if (i == 0) std::cout << " (global)";
+        std::cout << ":\n";
 
+        for (const auto& pair : scopes[i]) {
+            std::cout << "  " << pair.first << " = " << pair.second << "\n";
+        }
+    }
+    std::cout << "--------------------\n";
+}
+
+int Interpreter::evalExpr(const Expr* expr) {
     if (auto b = dynamic_cast<const BooleanExpr*>(expr))
         return b->value ? 1 : 0;
-
 
     if (auto num = dynamic_cast<const NumberExpr*>(expr))
         return num->value;
@@ -53,19 +65,15 @@ int Interpreter::evalExpr(const Expr* expr) {
 }
 
 bool Interpreter::evalCondition(const Expr* expr) {
-
-    // Handle boolean literals directly
-    if (auto b = dynamic_cast<const BooleanExpr*>(expr)) {
+    if (auto b = dynamic_cast<const BooleanExpr*>(expr))
         return b->value;
-    }
 
-    // Handle binary comparisons
     if (auto bin = dynamic_cast<const BinaryExpr*>(expr)) {
         int left = evalExpr(bin->left.get());
         int right = evalExpr(bin->right.get());
 
-        if (bin->op == ">")  return left > right;
-        if (bin->op == "<")  return left < right;
+        if (bin->op == ">") return left > right;
+        if (bin->op == "<") return left < right;
         if (bin->op == "==") return left == right;
     }
 
@@ -73,49 +81,55 @@ bool Interpreter::evalCondition(const Expr* expr) {
     return false;
 }
 
-
 void Interpreter::execute(const ASTNode& node) {
 
     // ---------- Program ----------
     if (auto program = dynamic_cast<const Program*>(&node)) {
-        enterScope();  // global scope
+        enterScope();  // global
         for (const auto& stmt : program->statements)
             execute(*stmt);
+        printSymbolTable();      // 🔍 final state
         exitScope();
         return;
     }
 
-    // ---------- Assignment (FIXED) ----------
+    // ---------- Assignment ----------
     if (auto assign = dynamic_cast<const Assignment*>(&node)) {
-
         int value = evalExpr(assign->expression.get());
 
-        // Try to update existing variable (inner → outer)
         for (int i = scopes.size() - 1; i >= 0; --i) {
             if (initialized[i].count(assign->variable)) {
                 scopes[i][assign->variable] = value;
                 std::cout << assign->variable << " = " << value << std::endl;
+                printSymbolTable();   // 🔍 debug
                 return;
             }
         }
 
-        // Variable does not exist → create in current scope
         scopes.back()[assign->variable] = value;
         initialized.back().insert(assign->variable);
 
         std::cout << assign->variable << " = " << value << std::endl;
+        printSymbolTable();       // 🔍 debug
         return;
     }
 
-    // ---------- If (optional else) ----------
+    // ---------- Print ----------
+    if (auto printStmt = dynamic_cast<const PrintStatement*>(&node)) {
+        int value = evalExpr(printStmt->expression.get());
+        std::cout << value << std::endl;
+        printSymbolTable();       // 🔍 debug
+        return;
+    }
+
+    // ---------- If ----------
     if (auto ifStmt = dynamic_cast<const IfStatement*>(&node)) {
         enterScope();
 
-        if (evalCondition(ifStmt->condition.get())) {
+        if (evalCondition(ifStmt->condition.get()))
             execute(*ifStmt->thenBranch);
-        } else if (ifStmt->elseBranch) {
+        else if (ifStmt->elseBranch)
             execute(*ifStmt->elseBranch);
-        }
 
         exitScope();
         return;
@@ -127,19 +141,10 @@ void Interpreter::execute(const ASTNode& node) {
         return;
     }
 
-    // ---------- Print ----------
-    if (auto printStmt = dynamic_cast<const PrintStatement*>(&node)) {
-         int value = evalExpr(printStmt->expression.get());
-        std::cout << value << std::endl;
-        return;
-    }
-
-
-    // ---------- While (NO new scope) ----------
+    // ---------- While ----------
     if (auto whileStmt = dynamic_cast<const WhileStatement*>(&node)) {
         while (evalCondition(whileStmt->condition.get())) {
             execute(*whileStmt->body);
-
             if (breakSignal) {
                 breakSignal = false;
                 break;
