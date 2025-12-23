@@ -4,14 +4,12 @@
 
 int main() {
   std::string code =
-    "a = 5;"
-    "while { a > 0 } {"
-    "if { a == 3 } {"
-    "break;"
-    "} else {"
-    "a = a - 1;"
-    "}"
+    "a = 1;"
+    "while { false } {"
+    "a = a + 1;"
     "}";
+
+
 
 
     Lexer lexer(code);

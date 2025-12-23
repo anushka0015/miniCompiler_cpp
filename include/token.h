@@ -14,6 +14,8 @@ enum class TokenType {
     KEYWORD_ELSE,
     KEYWORD_WHILE,
     KEYWORD_BREAK,
+    KEYWORD_TRUE,
+    KEYWORD_FALSE,
     LBRACE,
     RBRACE,
     GREATER,

@@ -18,6 +18,11 @@ void Interpreter::exitScope() {
 }
 
 int Interpreter::evalExpr(const Expr* expr) {
+
+    if (auto b = dynamic_cast<const BooleanExpr*>(expr))
+        return b->value ? 1 : 0;
+
+
     if (auto num = dynamic_cast<const NumberExpr*>(expr))
         return num->value;
 
@@ -48,17 +53,26 @@ int Interpreter::evalExpr(const Expr* expr) {
 }
 
 bool Interpreter::evalCondition(const Expr* expr) {
-    auto bin = dynamic_cast<const BinaryExpr*>(expr);
-    int left = evalExpr(bin->left.get());
-    int right = evalExpr(bin->right.get());
 
-    if (bin->op == ">") return left > right;
-    if (bin->op == "<") return left < right;
-    if (bin->op == "==") return left == right;
+    // Handle boolean literals directly
+    if (auto b = dynamic_cast<const BooleanExpr*>(expr)) {
+        return b->value;
+    }
+
+    // Handle binary comparisons
+    if (auto bin = dynamic_cast<const BinaryExpr*>(expr)) {
+        int left = evalExpr(bin->left.get());
+        int right = evalExpr(bin->right.get());
+
+        if (bin->op == ">")  return left > right;
+        if (bin->op == "<")  return left < right;
+        if (bin->op == "==") return left == right;
+    }
 
     semanticError("Invalid condition expression");
     return false;
 }
+
 
 void Interpreter::execute(const ASTNode& node) {
 

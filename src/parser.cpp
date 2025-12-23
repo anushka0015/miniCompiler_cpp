@@ -16,11 +16,23 @@ void Parser::eat(TokenType type) {
 }
 
 // ---------- Expressions ----------
+
 std::unique_ptr<Expr> Parser::parseTerm() {
+
     if (currentToken.type == TokenType::NUMBER) {
         int value = std::stoi(currentToken.value);
         eat(TokenType::NUMBER);
         return std::make_unique<NumberExpr>(value);
+    }
+
+    if (currentToken.type == TokenType::KEYWORD_TRUE) {
+        eat(TokenType::KEYWORD_TRUE);
+        return std::make_unique<BooleanExpr>(true);
+    }
+
+    if (currentToken.type == TokenType::KEYWORD_FALSE) {
+        eat(TokenType::KEYWORD_FALSE);
+        return std::make_unique<BooleanExpr>(false);
     }
 
     if (currentToken.type == TokenType::IDENTIFIER) {
@@ -32,6 +44,7 @@ std::unique_ptr<Expr> Parser::parseTerm() {
     std::cerr << "Invalid term\n";
     exit(1);
 }
+
 
 std::unique_ptr<Expr> Parser::parseExpression() {
     auto left = parseTerm();

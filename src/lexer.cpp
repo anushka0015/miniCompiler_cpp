@@ -22,7 +22,8 @@ Token Lexer::getNextToken() {
         if (word == "else") return {TokenType::KEYWORD_ELSE, word};
         if (word == "while") return {TokenType::KEYWORD_WHILE, word};
         if (word == "break") return {TokenType::KEYWORD_BREAK, word};
-
+        if (word == "true")  return {TokenType::KEYWORD_TRUE, word};
+        if (word == "false") return {TokenType::KEYWORD_FALSE, word};
 
         // Normal identifier
         return {TokenType::IDENTIFIER, word};

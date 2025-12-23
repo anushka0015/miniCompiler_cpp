@@ -21,6 +21,12 @@ struct NumberExpr : Expr {
     NumberExpr(int value) : value(value) {}
 };
 
+struct BooleanExpr : Expr {
+    bool value;
+    BooleanExpr(bool value) : value(value) {}
+};
+
+
 struct VariableExpr : Expr {
     std::string name;
     VariableExpr(const std::string& name) : name(name) {}
