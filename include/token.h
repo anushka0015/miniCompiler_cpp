@@ -13,6 +13,7 @@ enum class TokenType {
     KEYWORD_IF,
     KEYWORD_ELSE,
     KEYWORD_WHILE,
+    KEYWORD_BREAK,
     LBRACE,
     RBRACE,
     GREATER,

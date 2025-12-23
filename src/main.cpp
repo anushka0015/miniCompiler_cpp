@@ -3,14 +3,15 @@
 #include "interpreter.h"
 
 int main() {
-   std::string code =
-    "a = 20;"
-    "if { a > 10 } {"
-    "x = 1;"
-    "} else if { a > 5 } {"
-    "x = 2;"
+  std::string code =
+    "a = 5;"
+    "while { a > 0 } {"
+    "if { a == 3 } {"
+    "break;"
+    "} else {"
+    "a = a - 1;"
+    "}"
     "}";
-
 
 
     Lexer lexer(code);

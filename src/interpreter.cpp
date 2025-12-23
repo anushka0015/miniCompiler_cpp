@@ -62,7 +62,7 @@ bool Interpreter::evalCondition(const Expr* expr) {
 
 void Interpreter::execute(const ASTNode& node) {
 
-    // ---------- Program (global scope) ----------
+    // ---------- Program ----------
     if (auto program = dynamic_cast<const Program*>(&node)) {
         enterScope();  // global scope
         for (const auto& stmt : program->statements)
@@ -71,15 +71,21 @@ void Interpreter::execute(const ASTNode& node) {
         return;
     }
 
-    // ---------- Assignment ----------
+    // ---------- Assignment (FIXED) ----------
     if (auto assign = dynamic_cast<const Assignment*>(&node)) {
 
-        // Redeclaration check (same scope)
-        if (initialized.back().count(assign->variable)) {
-            semanticError("Variable '" + assign->variable + "' redeclared in same scope");
+        int value = evalExpr(assign->expression.get());
+
+        // Try to update existing variable (inner → outer)
+        for (int i = scopes.size() - 1; i >= 0; --i) {
+            if (initialized[i].count(assign->variable)) {
+                scopes[i][assign->variable] = value;
+                std::cout << assign->variable << " = " << value << std::endl;
+                return;
+            }
         }
 
-        int value = evalExpr(assign->expression.get());
+        // Variable does not exist → create in current scope
         scopes.back()[assign->variable] = value;
         initialized.back().insert(assign->variable);
 
@@ -87,14 +93,13 @@ void Interpreter::execute(const ASTNode& node) {
         return;
     }
 
-    // ---------- If statement (ELSE OPTIONAL) ----------
+    // ---------- If (optional else) ----------
     if (auto ifStmt = dynamic_cast<const IfStatement*>(&node)) {
         enterScope();
 
         if (evalCondition(ifStmt->condition.get())) {
             execute(*ifStmt->thenBranch);
-        }
-        else if (ifStmt->elseBranch) {   // ⭐ THIS IS THE KEY CHANGE
+        } else if (ifStmt->elseBranch) {
             execute(*ifStmt->elseBranch);
         }
 
@@ -102,15 +107,22 @@ void Interpreter::execute(const ASTNode& node) {
         return;
     }
 
-    // ---------- While loop ----------
+    // ---------- Break ----------
+    if (auto brk = dynamic_cast<const BreakStatement*>(&node)) {
+        breakSignal = true;
+        return;
+    }
+
+    // ---------- While (NO new scope) ----------
     if (auto whileStmt = dynamic_cast<const WhileStatement*>(&node)) {
-        enterScope();
         while (evalCondition(whileStmt->condition.get())) {
             execute(*whileStmt->body);
+
+            if (breakSignal) {
+                breakSignal = false;
+                break;
+            }
         }
-        exitScope();
         return;
     }
 }
-
-

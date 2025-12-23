@@ -23,6 +23,8 @@ private:
     std::unique_ptr<ASTNode> parseAssignment();
     std::unique_ptr<ASTNode> parseIfStatement();
     std::unique_ptr<ASTNode> parseWhileStatement();
+    std::unique_ptr<ASTNode> parseBreakStatement();
+
 };
 
 #endif

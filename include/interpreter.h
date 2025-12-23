@@ -21,6 +21,8 @@ private:
 
     int evalExpr(const Expr* expr);
     bool evalCondition(const Expr* expr);
+    bool breakSignal = false;
+
 
     void semanticError(const std::string& message);
 };

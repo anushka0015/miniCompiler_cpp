@@ -125,6 +125,13 @@ std::unique_ptr<ASTNode> Parser::parseWhileStatement() {
     );
 }
 
+std::unique_ptr<ASTNode> Parser::parseBreakStatement() {
+    eat(TokenType::KEYWORD_BREAK);
+    eat(TokenType::SEMICOLON);
+    return std::make_unique<BreakStatement>();
+}
+
+
 std::unique_ptr<ASTNode> Parser::parseStatement() {
     if (currentToken.type == TokenType::KEYWORD_IF)
         return parseIfStatement();
@@ -132,8 +139,12 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
     if (currentToken.type == TokenType::KEYWORD_WHILE)
         return parseWhileStatement();
 
+    if (currentToken.type == TokenType::KEYWORD_BREAK)
+        return parseBreakStatement();
+
     return parseAssignment();
 }
+
 
 // ---------- Program ----------
 std::unique_ptr<Program> Parser::parseProgram() {

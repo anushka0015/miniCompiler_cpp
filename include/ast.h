@@ -13,6 +13,9 @@ struct ASTNode {
 // ---------- Expressions ----------
 struct Expr : ASTNode {};
 
+struct BreakStatement : ASTNode {};
+
+
 struct NumberExpr : Expr {
     int value;
     NumberExpr(int value) : value(value) {}
