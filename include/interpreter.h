@@ -4,6 +4,7 @@
 #include "ast.h"
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 #include <string>
 
 class Interpreter {
@@ -11,8 +12,12 @@ public:
     void execute(const ASTNode& node);
 
 private:
-    std::unordered_map<std::string, int> variables;
-    std::unordered_set<std::string> initialized;
+    // Stack of scopes
+    std::vector<std::unordered_map<std::string, int>> scopes;
+    std::vector<std::unordered_set<std::string>> initialized;
+
+    void enterScope();
+    void exitScope();
 
     int evalExpr(const Expr* expr);
     bool evalCondition(const Expr* expr);
@@ -21,3 +26,4 @@ private:
 };
 
 #endif
+

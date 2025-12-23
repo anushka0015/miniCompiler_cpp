@@ -3,10 +3,14 @@
 #include "interpreter.h"
 
 int main() {
-    std::string code =
+   std::string code =
     "a = 10;"
-    "b = a / 0;";
-
+    "if { a > 5 } {"
+    "b = 20;"
+    "} else {"
+    "b = 30;"
+    "}"
+    "c = b + 1;";
 
     Lexer lexer(code);
     Parser parser(lexer);
@@ -18,7 +22,3 @@ int main() {
 
     return 0;
 }
-
-
-
-
