@@ -71,11 +71,18 @@ void Interpreter::execute(const ASTNode& node) {
     }
 
     if (auto assign = dynamic_cast<const Assignment*>(&node)) {
-        int value = evalExpr(assign->expression.get());
-        scopes.back()[assign->variable] = value;
-        initialized.back().insert(assign->variable);
-        std::cout << assign->variable << " = " << value << std::endl;
+    // Redeclaration check: same scope
+    if (initialized.back().count(assign->variable)) {
+        semanticError("Variable '" + assign->variable + "' redeclared in same scope");
     }
+
+    int value = evalExpr(assign->expression.get());
+    scopes.back()[assign->variable] = value;
+    initialized.back().insert(assign->variable);
+
+    std::cout << assign->variable << " = " << value << std::endl;
+}
+
 
     else if (auto ifStmt = dynamic_cast<const IfStatement*>(&node)) {
         enterScope();
