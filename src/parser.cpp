@@ -84,11 +84,20 @@ std::unique_ptr<ASTNode> Parser::parseIfStatement() {
 
     std::unique_ptr<ASTNode> elseStmt = nullptr;
 
+    // else or else-if
     if (currentToken.type == TokenType::KEYWORD_ELSE) {
         eat(TokenType::KEYWORD_ELSE);
-        eat(TokenType::LBRACE);
-        elseStmt = parseStatement();
-        eat(TokenType::RBRACE);
+
+        // else if
+        if (currentToken.type == TokenType::KEYWORD_IF) {
+            elseStmt = parseIfStatement();  // 🔥 recursion
+        }
+        // else block
+        else {
+            eat(TokenType::LBRACE);
+            elseStmt = parseStatement();
+            eat(TokenType::RBRACE);
+        }
     }
 
     return std::make_unique<IfStatement>(
@@ -97,6 +106,7 @@ std::unique_ptr<ASTNode> Parser::parseIfStatement() {
         std::move(elseStmt)
     );
 }
+
 
 
 std::unique_ptr<ASTNode> Parser::parseWhileStatement() {

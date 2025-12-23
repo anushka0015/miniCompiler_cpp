@@ -4,11 +4,13 @@
 
 int main() {
    std::string code =
-    "a = 10;"
-    "if { a > 5 } {"
-    "b = 20;"
-    "}"
-    "c = b + 1;";
+    "a = 20;"
+    "if { a > 10 } {"
+    "x = 1;"
+    "} else if { a > 5 } {"
+    "x = 2;"
+    "}";
+
 
 
     Lexer lexer(code);
