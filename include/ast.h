@@ -47,11 +47,11 @@ struct Assignment : ASTNode {
 struct IfStatement : ASTNode {
     std::unique_ptr<Expr> condition;
     std::unique_ptr<ASTNode> thenBranch;
-    std::unique_ptr<ASTNode> elseBranch;
+    std::unique_ptr<ASTNode> elseBranch; // can be nullptr
 
     IfStatement(std::unique_ptr<Expr> condition,
                 std::unique_ptr<ASTNode> thenBranch,
-                std::unique_ptr<ASTNode> elseBranch)
+                std::unique_ptr<ASTNode> elseBranch = nullptr)
         : condition(std::move(condition)),
           thenBranch(std::move(thenBranch)),
           elseBranch(std::move(elseBranch)) {}
@@ -67,7 +67,6 @@ struct WhileStatement : ASTNode {
           body(std::move(body)) {}
 };
 
-// ---------- Program ----------
 struct Program : ASTNode {
     std::vector<std::unique_ptr<ASTNode>> statements;
 };

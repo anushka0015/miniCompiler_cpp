@@ -3,11 +3,10 @@
 #include "interpreter.h"
 
 int main() {
-    std::string code =
-    "if { 1 == 1 } {"
-    "b = 5;"
-    "} else {"
-    "b = 6;"
+   std::string code =
+    "a = 10;"
+    "if { a > 5 } {"
+    "b = 20;"
     "}"
     "c = b + 1;";
 

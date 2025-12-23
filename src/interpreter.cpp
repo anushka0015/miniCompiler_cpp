@@ -61,7 +61,8 @@ bool Interpreter::evalCondition(const Expr* expr) {
 }
 
 void Interpreter::execute(const ASTNode& node) {
-    // Program starts with global scope
+
+    // ---------- Program (global scope) ----------
     if (auto program = dynamic_cast<const Program*>(&node)) {
         enterScope();  // global scope
         for (const auto& stmt : program->statements)
@@ -70,34 +71,45 @@ void Interpreter::execute(const ASTNode& node) {
         return;
     }
 
+    // ---------- Assignment ----------
     if (auto assign = dynamic_cast<const Assignment*>(&node)) {
-    // Redeclaration check: same scope
-    if (initialized.back().count(assign->variable)) {
-        semanticError("Variable '" + assign->variable + "' redeclared in same scope");
+
+        // Redeclaration check (same scope)
+        if (initialized.back().count(assign->variable)) {
+            semanticError("Variable '" + assign->variable + "' redeclared in same scope");
+        }
+
+        int value = evalExpr(assign->expression.get());
+        scopes.back()[assign->variable] = value;
+        initialized.back().insert(assign->variable);
+
+        std::cout << assign->variable << " = " << value << std::endl;
+        return;
     }
 
-    int value = evalExpr(assign->expression.get());
-    scopes.back()[assign->variable] = value;
-    initialized.back().insert(assign->variable);
-
-    std::cout << assign->variable << " = " << value << std::endl;
-}
-
-
-    else if (auto ifStmt = dynamic_cast<const IfStatement*>(&node)) {
+    // ---------- If statement (ELSE OPTIONAL) ----------
+    if (auto ifStmt = dynamic_cast<const IfStatement*>(&node)) {
         enterScope();
-        if (evalCondition(ifStmt->condition.get()))
+
+        if (evalCondition(ifStmt->condition.get())) {
             execute(*ifStmt->thenBranch);
-        else
+        }
+        else if (ifStmt->elseBranch) {   // ⭐ THIS IS THE KEY CHANGE
             execute(*ifStmt->elseBranch);
+        }
+
         exitScope();
+        return;
     }
 
-    else if (auto whileStmt = dynamic_cast<const WhileStatement*>(&node)) {
+    // ---------- While loop ----------
+    if (auto whileStmt = dynamic_cast<const WhileStatement*>(&node)) {
         enterScope();
-        while (evalCondition(whileStmt->condition.get()))
+        while (evalCondition(whileStmt->condition.get())) {
             execute(*whileStmt->body);
+        }
         exitScope();
+        return;
     }
 }
 
