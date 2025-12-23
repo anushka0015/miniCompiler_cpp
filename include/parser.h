@@ -21,13 +21,13 @@ private:
 
     std::unique_ptr<ASTNode> parseStatement();
     std::unique_ptr<ASTNode> parseAssignment();
+    std::unique_ptr<ASTNode> parsePrintStatement();
+    std::unique_ptr<ASTNode> parseBreakStatement();
     std::unique_ptr<ASTNode> parseIfStatement();
     std::unique_ptr<ASTNode> parseWhileStatement();
-    std::unique_ptr<ASTNode> parseBreakStatement();
-    std::unique_ptr<ASTNode> parsePrintStatement();
-
-
+    std::unique_ptr<Block>   parseBlock();
 };
 
 #endif
+
 

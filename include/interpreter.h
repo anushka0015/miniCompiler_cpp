@@ -16,7 +16,7 @@ private:
     std::vector<std::unordered_set<std::string>> initialized;
 
     bool breakSignal = false;
-
+    bool debug = true;
     void enterScope();
     void exitScope();
 

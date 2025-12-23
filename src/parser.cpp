@@ -16,7 +16,6 @@ void Parser::eat(TokenType type) {
 }
 
 // ---------- Expressions ----------
-
 std::unique_ptr<Expr> Parser::parseTerm() {
 
     if (currentToken.type == TokenType::NUMBER) {
@@ -44,7 +43,6 @@ std::unique_ptr<Expr> Parser::parseTerm() {
     std::cerr << "Invalid term\n";
     exit(1);
 }
-
 
 std::unique_ptr<Expr> Parser::parseExpression() {
     auto left = parseTerm();
@@ -75,17 +73,19 @@ std::unique_ptr<Expr> Parser::parseCondition() {
     return left;
 }
 
-std::unique_ptr<ASTNode> Parser::parsePrintStatement() {
-    eat(TokenType::KEYWORD_PRINT);
-    eat(TokenType::LPAREN);
-    auto expr = parseExpression();
-    eat(TokenType::RPAREN);
-    eat(TokenType::SEMICOLON);
-    return std::make_unique<PrintStatement>(std::move(expr));
+// ---------- Statements ----------
+std::unique_ptr<Block> Parser::parseBlock() {
+    eat(TokenType::LBRACE);
+    auto block = std::make_unique<Block>();
+
+    while (currentToken.type != TokenType::RBRACE) {
+        block->statements.push_back(parseStatement());
+    }
+
+    eat(TokenType::RBRACE);
+    return block;
 }
 
-
-// ---------- Statements ----------
 std::unique_ptr<ASTNode> Parser::parseAssignment() {
     std::string var = currentToken.value;
     eat(TokenType::IDENTIFIER);
@@ -95,57 +95,13 @@ std::unique_ptr<ASTNode> Parser::parseAssignment() {
     return std::make_unique<Assignment>(var, std::move(expr));
 }
 
-std::unique_ptr<ASTNode> Parser::parseIfStatement() {
-    eat(TokenType::KEYWORD_IF);
-    eat(TokenType::LBRACE);
-    auto condition = parseCondition();
-    eat(TokenType::RBRACE);
-
-    eat(TokenType::LBRACE);
-    auto thenStmt = parseStatement();
-    eat(TokenType::RBRACE);
-
-    std::unique_ptr<ASTNode> elseStmt = nullptr;
-
-    // else or else-if
-    if (currentToken.type == TokenType::KEYWORD_ELSE) {
-        eat(TokenType::KEYWORD_ELSE);
-
-        // else if
-        if (currentToken.type == TokenType::KEYWORD_IF) {
-            elseStmt = parseIfStatement();  // 🔥 recursion
-        }
-        // else block
-        else {
-            eat(TokenType::LBRACE);
-            elseStmt = parseStatement();
-            eat(TokenType::RBRACE);
-        }
-    }
-
-    return std::make_unique<IfStatement>(
-        std::move(condition),
-        std::move(thenStmt),
-        std::move(elseStmt)
-    );
-}
-
-
-
-std::unique_ptr<ASTNode> Parser::parseWhileStatement() {
-    eat(TokenType::KEYWORD_WHILE);
-    eat(TokenType::LBRACE);
-    auto condition = parseCondition();
-    eat(TokenType::RBRACE);
-
-    eat(TokenType::LBRACE);
-    auto body = parseStatement();
-    eat(TokenType::RBRACE);
-
-    return std::make_unique<WhileStatement>(
-        std::move(condition),
-        std::move(body)
-    );
+std::unique_ptr<ASTNode> Parser::parsePrintStatement() {
+    eat(TokenType::KEYWORD_PRINT);
+    eat(TokenType::LPAREN);
+    auto expr = parseExpression();
+    eat(TokenType::RPAREN);
+    eat(TokenType::SEMICOLON);
+    return std::make_unique<PrintStatement>(std::move(expr));
 }
 
 std::unique_ptr<ASTNode> Parser::parseBreakStatement() {
@@ -154,6 +110,46 @@ std::unique_ptr<ASTNode> Parser::parseBreakStatement() {
     return std::make_unique<BreakStatement>();
 }
 
+std::unique_ptr<ASTNode> Parser::parseIfStatement() {
+    eat(TokenType::KEYWORD_IF);
+    eat(TokenType::LBRACE);
+    auto condition = parseCondition();
+    eat(TokenType::RBRACE);
+
+    auto thenBlock = parseBlock();
+
+    std::unique_ptr<ASTNode> elseBlock = nullptr;
+
+    if (currentToken.type == TokenType::KEYWORD_ELSE) {
+        eat(TokenType::KEYWORD_ELSE);
+
+        if (currentToken.type == TokenType::KEYWORD_IF) {
+            elseBlock = parseIfStatement();
+        } else {
+            elseBlock = parseBlock();
+        }
+    }
+
+    return std::make_unique<IfStatement>(
+        std::move(condition),
+        std::move(thenBlock),
+        std::move(elseBlock)
+    );
+}
+
+std::unique_ptr<ASTNode> Parser::parseWhileStatement() {
+    eat(TokenType::KEYWORD_WHILE);
+    eat(TokenType::LBRACE);
+    auto condition = parseCondition();
+    eat(TokenType::RBRACE);
+
+    auto body = parseBlock();
+
+    return std::make_unique<WhileStatement>(
+        std::move(condition),
+        std::move(body)
+    );
+}
 
 std::unique_ptr<ASTNode> Parser::parseStatement() {
 
@@ -171,8 +167,6 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
 
     return parseAssignment();
 }
-
-
 
 // ---------- Program ----------
 std::unique_ptr<Program> Parser::parseProgram() {

@@ -13,9 +13,6 @@ struct ASTNode {
 // ---------- Expressions ----------
 struct Expr : ASTNode {};
 
-struct BreakStatement : ASTNode {};
-
-
 struct NumberExpr : Expr {
     int value;
     NumberExpr(int value) : value(value) {}
@@ -25,13 +22,6 @@ struct BooleanExpr : Expr {
     bool value;
     BooleanExpr(bool value) : value(value) {}
 };
-
-struct PrintStatement : ASTNode {
-    std::unique_ptr<Expr> expression;
-    PrintStatement(std::unique_ptr<Expr> expression)
-        : expression(std::move(expression)) {}
-};
-
 
 struct VariableExpr : Expr {
     std::string name;
@@ -59,10 +49,22 @@ struct Assignment : ASTNode {
         : variable(variable), expression(std::move(expression)) {}
 };
 
+struct PrintStatement : ASTNode {
+    std::unique_ptr<Expr> expression;
+    PrintStatement(std::unique_ptr<Expr> expression)
+        : expression(std::move(expression)) {}
+};
+
+struct BreakStatement : ASTNode {};
+
+struct Block : ASTNode {
+    std::vector<std::unique_ptr<ASTNode>> statements;
+};
+
 struct IfStatement : ASTNode {
     std::unique_ptr<Expr> condition;
     std::unique_ptr<ASTNode> thenBranch;
-    std::unique_ptr<ASTNode> elseBranch; // can be nullptr
+    std::unique_ptr<ASTNode> elseBranch; // optional
 
     IfStatement(std::unique_ptr<Expr> condition,
                 std::unique_ptr<ASTNode> thenBranch,

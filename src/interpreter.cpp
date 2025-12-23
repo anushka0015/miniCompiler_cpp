@@ -10,16 +10,31 @@ void Interpreter::semanticError(const std::string& message) {
 void Interpreter::enterScope() {
     scopes.push_back({});
     initialized.push_back({});
+    printSymbolTable();
 }
 
 void Interpreter::exitScope() {
+    printSymbolTable();
     scopes.pop_back();
     initialized.pop_back();
 }
 
+
 void Interpreter::printSymbolTable() {
+    bool hasAny = false;
+    for (const auto& scope : scopes)
+        if (!scope.empty()) hasAny = true;
+
+    if (!hasAny) return;
+
+
+    if (!debug) return;
+
     std::cout << "\n--- SYMBOL TABLE ---\n";
+
     for (size_t i = 0; i < scopes.size(); ++i) {
+        if (scopes[i].empty()) continue;
+
         std::cout << "Scope " << i;
         if (i == 0) std::cout << " (global)";
         std::cout << ":\n";
@@ -28,8 +43,10 @@ void Interpreter::printSymbolTable() {
             std::cout << "  " << pair.first << " = " << pair.second << "\n";
         }
     }
+
     std::cout << "--------------------\n";
 }
+
 
 int Interpreter::evalExpr(const Expr* expr) {
     if (auto b = dynamic_cast<const BooleanExpr*>(expr))
@@ -84,6 +101,19 @@ bool Interpreter::evalCondition(const Expr* expr) {
 void Interpreter::execute(const ASTNode& node) {
 
     // ---------- Program ----------
+
+    // ---------- Block ----------
+    if (auto block = dynamic_cast<const Block*>(&node)) {
+        enterScope();
+        for (const auto& stmt : block->statements) {
+            execute(*stmt);
+            if (breakSignal) break;
+        }
+    exitScope();
+    return;
+    }
+
+
     if (auto program = dynamic_cast<const Program*>(&node)) {
         enterScope();  // global
         for (const auto& stmt : program->statements)
@@ -152,4 +182,13 @@ void Interpreter::execute(const ASTNode& node) {
         }
         return;
     }
+
+    if (auto program = dynamic_cast<const Program*>(&node)) {
+    enterScope();
+    for (const auto& stmt : program->statements)
+        execute(*stmt);
+    printSymbolTable();   // final state
+    exitScope();
+    return;
+    }   
 }
